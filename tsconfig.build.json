@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "commonjs",
+    "target": "es2021",
+    "lib": [
+      "es2021"
+    ],
+    "incremental": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noEmitOnError": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "composite": true,
+    "experimentalDecorators": true,
+    "types": [
+      "node",
+    ],
+    "moduleResolution": "node",
+  },
+  "exclude": [
+    "node_modules",
+  ]
+}

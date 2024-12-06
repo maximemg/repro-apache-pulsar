@@ -1,0 +1,6 @@
+/bazel-bin
+/bazel-out
+/bazel-repro-apache-pulsar
+/bazel-testlogs
+/dist
+/node_modules

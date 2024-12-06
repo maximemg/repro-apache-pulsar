@@ -1,0 +1,13 @@
+{
+  "name": "repro-apache-pulsar-client",
+  "private": true,
+  "dependencies": {
+    "pulsar-client": "^1.10.0"
+  },
+  "devDependencies": {
+    "typescript": "4.8.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
+  }
+}

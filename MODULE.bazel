@@ -1,0 +1,175 @@
+"""
+MODULE
+"""
+
+module(
+    name = "repro-pulsar-client",
+    version = "1.0",
+)
+
+#
+# Rules Aspect
+#
+# https://github.com/aspect-build/bazel-lib/releases
+bazel_dep(name = "aspect_bazel_lib", version = "2.9.4")
+
+#
+# Rules Skylib
+#
+# https://github.com/bazelbuild/bazel-skylib/releases
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+
+#
+# Rules PKG
+#
+# https://github.com/bazelbuild/rules_pkg/releases
+bazel_dep(name = "rules_pkg", version = "1.0.1")
+
+#
+# Rules Platform
+#
+# https://github.com/bazelbuild/platforms/releases/
+bazel_dep(name = "platforms", version = "0.0.10")
+
+#
+# Rules JS
+#
+# https://github.com/aspect-build/rules_js/releases/
+bazel_dep(name = "aspect_rules_js", version = "2.1.2")
+
+#
+# Rules NodeJS
+#
+# https://github.com/bazel-contrib/rules_nodejs/releases
+bazel_dep(name = "rules_nodejs", version = "6.3.2")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
+node.toolchain(node_version = "22.11.0")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm", dev_dependency = True)
+npm.npm_translate_lock(
+    name = "npm",
+    # Call @angular/cli to serve an angular app
+    bins = {
+        "@angular/cli": [
+            "ng=./bin/ng.js",
+        ],
+    },
+    npmrc = "@//:.npmrc",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+use_repo(npm, "npm")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+use_repo(pnpm, "pnpm")
+
+#
+# Rules TS
+#
+# https://github.com/aspect-build/rules_ts/releases/
+bazel_dep(name = "aspect_rules_ts", version = "3.3.1")
+
+rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext", dev_dependency = True)
+rules_ts_ext.deps(
+    ts_version_from = "//:package.json",
+)
+
+bazel_lib_toolchains = use_extension("@aspect_bazel_lib//lib:extensions.bzl", "toolchains")
+bazel_lib_toolchains.tar()
+
+use_repo(rules_ts_ext, "npm_typescript")
+
+#
+# Rules SWC
+#
+# https://github.com/aspect-build/rules_swc/releases
+bazel_dep(name = "aspect_rules_swc", version = "2.0.1")
+
+swc = use_extension("@aspect_rules_swc//swc:extensions.bzl", "swc")
+swc.toolchain(
+    name = "swc",
+    swc_version = "v1.7.14",
+)
+use_repo(swc, "swc_toolchains")
+
+#
+# Rules Jest
+#
+# https://github.com/aspect-build/rules_jest/releases
+bazel_dep(name = "aspect_rules_jest", version = "0.22.0")
+
+#
+# Rules Rust
+#
+# https://github.com/bazelbuild/rules_rust/releases
+
+# When https://github.com/bazelbuild/rules_rust/pull/2740 is merged
+
+# #
+# # Rules JWM
+# #
+# # https://github.com/bazelbuild/rules_jvm_external/releases
+# bazel_dep(name = "rules_jvm_external", version = "6.4")
+# maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+
+# maven.install(
+#     artifacts = [
+#         "junit:junit:4.12",
+#         "org.apache.pulsar:pulsar-functions-api:2.9.1",
+#         "org.apache.pulsar:pulsar-client:2.9.1",
+#         "org.apache.pulsar:pulsar-client-api:2.9.1",
+#         "org.apache.avro:avro-protobuf:1.11.0",
+#         "org.slf4j:slf4j-api:1.7.36",
+#     ],
+#     repositories = [
+#         "https://maven.google.com",
+#         "https://maven.apache.org",
+#         "https://repo1.maven.org/maven2",
+#     ],
+#     lock_file = "//:maven_install.json",
+# )
+
+# use_repo(
+#     maven,
+#     "maven",
+# )
+
+#
+# Rules OCI
+#
+# https://github.com/bazel-contrib/rules_oci/releases/
+bazel_dep(name = "rules_oci", version = "2.0.1")
+# For testing, we also recommend https://registry.bazel.build/modules/container_structure_test
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+
+NGINX_IMAGE_NAME = "nginx_amd64"
+
+NGINX_IMAGE_SHA256 = "sha256:2be9e698d136d4d9be33d1852b1259bc1b80e20aed0c964cbcd6086da7fad5c7"
+
+oci.pull(
+    name = NGINX_IMAGE_NAME,
+    digest = NGINX_IMAGE_SHA256,
+    image = "docker.io/library/nginx",
+    platforms = ["linux/amd64"],
+)
+
+JAMMY_IMAGE_NAME = "jammy_amd64"
+
+JAMMY_IMAGE_SHA256 = "sha256:1b8d8ff4777f36f19bfe73ee4df61e3a0b789caeff29caa019539ec7c9a57f95"
+
+oci.pull(
+    name = JAMMY_IMAGE_NAME,
+    digest = JAMMY_IMAGE_SHA256,
+    image = "docker.io/library/ubuntu",
+    platforms = ["linux/amd64"],
+)
+use_repo(oci, NGINX_IMAGE_NAME, JAMMY_IMAGE_NAME, "jammy_amd64_linux_amd64", "nginx_amd64_linux_amd64")
+
+#
+# Rules Proto
+#
+# https://github.com/bazelbuild/rules_proto/releases
+bazel_dep(name = "protobuf", version = "27.1", repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_proto", version = "6.0.2")
